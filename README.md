@@ -33,7 +33,7 @@ One url is picked randomly and all placeholders are replaced by values from the 
 
 **Step 2** Run `npx load-generator` in the same directory
 
-If you are using a old npm version prior 5.2.0, you can install the packege globally
+If you are using a old npm version prior 5.2.0, you can install the package globally
 
 ## Screenshot
 ![screenshot](screenshot.png)
