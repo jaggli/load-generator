@@ -1,0 +1,32 @@
+{
+  "name": "load-generator",
+  "version": "0.0.1",
+  "description": "generates network load",
+  "bin": {
+    "load-generator": "bin/load-generator.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "standard",
+    "lint:fix": "standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaggli/load-generator.git"
+  },
+  "author": "Matthias Jäggli <matthias.jaeggli@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jaggli/load-generator/issues"
+  },
+  "homepage": "https://github.com/jaggli/load-generator#readme",
+  "devDependencies": {
+    "standard": "^10.0.3"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.5",
+    "node-fetch": "^1.7.3",
+    "performance-now": "^2.1.0"
+  }
+}
