@@ -4,7 +4,7 @@
 
 <details><summary>
   
-**Step 1** Create a configuration file an save it as `load-generator.json`
+**Step 1** Create a configuration file, and save it as `load-generator.json`
 </summary>
 
 ```json
