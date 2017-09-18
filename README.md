@@ -2,7 +2,11 @@
 
 ## Usage
 
-<details><summary>**Step 1** Create a configuration file an save it as `load-generator.json`</summary>
+<details><summary>
+  
+**Step 1** Create a configuration file an save it as `load-generator.json`
+</summary>
+
 ```json
 {
   "wait": 500,
