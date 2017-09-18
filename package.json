@@ -1,6 +1,6 @@
 {
   "name": "load-generator",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "generates network load",
   "bin": {
     "load-generator": "bin/load-generator.js"
