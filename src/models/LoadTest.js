@@ -46,37 +46,25 @@ class LoadTest {
     }
   }
   async request () {
-    this.stats.sent++
     const time = now()
     const { url, lang } = this.getUrl()
-    this.onRequest(url)
+    this.onRequest({ url })
     try {
       const response = await fetch(url)
-      this.stats.received++
       const delta = now() - time
       if (response.status >= 200 && response.status < 300) {
         const text = await response.text()
         if (this.verification(text, lang)) {
           this.onSuccess(response, delta, text)
-          this.stats.successDurations.push(delta)
           return
         }
       }
-      this.stats.failedDurations.push(delta)
       this.onFail(response, delta)
     } catch (e) {}
   }
   start () {
     if (this.running) { return }
     this.running = true
-    this.stats = {
-      start: now(),
-      duration: null,
-      sent: 0,
-      received: 0,
-      successDurations: [],
-      failedDurations: []
-    }
     for (let i = 0; i < this.instances; i++) {
       const delay = Math.round(i * this.wait / this.instances)
       setTimeout(() => {
@@ -94,11 +82,6 @@ class LoadTest {
       clearTimeout(timer)
     })
     this.timers = []
-
-    // Fixme, wait until all requests responded
-    this.stats.duration = now() - this.stats.start
-    setTimeout(() => {
-    }, 1000)
   }
 }
 

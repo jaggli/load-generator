@@ -31,9 +31,11 @@
 One url is picked randomly and all placeholders are replaced by values from the value object.
 </details>
 
-**Step 2** Run `npx load-generator` in the same directory
+**Step 2** Run `npx load-generator` in the same directory. The laod test imediately starts.
 
 If you are using a old npm version prior 5.2.0, you can install the package globally
+
+**Step 3** Hit ESC to stop the load test
 
 ## Screenshot
 ![screenshot](screenshot.png)
