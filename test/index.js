@@ -9,10 +9,20 @@ const config = JSON.parse(
 
 var lt = new LoadTest({
   ...config,
-  onSuccess: ({ url }, duration, text) => {},
-  onFail: ({ url }, duration, text) => {},
+  onSuccess: ({ url }, duration, text) => {
+    console.log("Success", url);
+  },
+  onFail: ({ url }, duration, text) => {
+    console.log("Fail", url);
+  },
   onRequest({ url }) {
-    console.log(url);
+    console.log("Request", url);
+  },
+  onResponse({ url }) {
+    console.log("Response", url);
+  },
+  onError(error) {
+    console.log("Error", error);
   },
 });
 

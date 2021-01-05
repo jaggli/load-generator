@@ -1,16 +1,18 @@
 # load-generator
 
-## Usage
+Generates load against URLs
 
-<details><summary>
+## Simple usage
 
+Continously call an URL
+`npx load-generator http://www.example.com/`
+
+## Advanced usage
 **1.)** Create a configuration file, and save it as `load-generator.json`
-
-</summary>
 
 ```json
 {
-  "wait": 500,
+  "pause": 500,
   "workers": 2,
   "urls": [
     "http://www.example.com/{lang}/",
@@ -30,9 +32,7 @@
 }
 ```
 
-One url is picked randomly and all placeholders are replaced by values from the value object.
-
-</details>
+One url is picked randomly and all placeholders are replaced by random values from the value object.
 
 **2.)** Run `npx load-generator` in the same directory to start generating load.
 

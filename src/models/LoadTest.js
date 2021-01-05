@@ -3,6 +3,19 @@ const { performance } = require("perf_hooks");
 const http = require("http");
 const https = require("https");
 
+const sleep = (duration) =>
+  new Promise((resolve) => setTimeout(resolve, duration));
+
+const getRandomValue = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+const getUrl = (urls, values) => {
+  let url = getRandomValue(urls);
+  Object.keys(values).forEach((key) => {
+    url = url.replace(`{${key}}`, getRandomValue(values[key]));
+  });
+  return url;
+};
+
 const getAgent = (url) =>
   url.protocol === "http:"
     ? new http.Agent({
@@ -14,17 +27,19 @@ const getAgent = (url) =>
       });
 class LoadTest {
   constructor({
-    wait = 500,
+    pause = 0,
     workers = 1,
     urls = ["/"],
     values = [],
     fetchOptions = {},
-    onSuccess = () => true,
+    onError = () => true,
     onFail = () => true,
     onRequest = () => true,
+    onResponse = () => true,
+    onSuccess = () => true,
     verification = () => true,
   }) {
-    this.wait = wait;
+    this.pause = pause;
     this.workers = workers;
     this.urls = urls;
     this.values = values;
@@ -32,79 +47,58 @@ class LoadTest {
       agent: getAgent,
       ...fetchOptions,
     };
-    this.onSuccess = onSuccess;
+    this.onError = onError;
     this.onFail = onFail;
     this.onRequest = onRequest;
+    this.onResponse = onResponse;
+    this.onSuccess = onSuccess;
     this.verification = verification;
-    this.timers = [];
-    this.running = false;
-    this.stop = this.stop.bind(this);
-    this.start = this.start.bind(this);
-    this.request = this.request.bind(this);
-  }
-  getRandomValue(arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-  getUrl() {
-    let url = this.getRandomValue(this.urls);
-    let lang;
-    Object.keys(this.values).forEach((key) => {
-      let value = this.getRandomValue(this.values[key]);
-      url = url.replace(`{${key}}`, value);
-      if (key === "lang") {
-        lang = value;
-      }
-    });
-    return {
-      url,
-      lang,
-    };
+    this.isRunning = false;
   }
   async request() {
-    const time = performance.now();
-    const { url, lang } = this.getUrl();
+    const startTime = performance.now();
+    const url = getUrl(this.urls, this.values);
     this.onRequest({ url });
     try {
       const response = await fetch(url, this.fetchOptions);
-      const duration = performance.now() - time;
+      const duration = performance.now() - startTime;
+      this.onResponse(response, duration);
       if (response.status >= 200 && response.status < 300) {
         const text = await response.text();
-        if (this.verification(text, lang)) {
+        if (this.verification(text, url)) {
           this.onSuccess(response, duration, text);
           return;
         }
       }
       this.onFail(response, duration);
     } catch (e) {
-      console.log(e);
+      this.onError(e);
     }
   }
+  async continousRequest() {
+    // use setTimeout to avoid callstack overflow
+    setTimeout(async () => {
+      await this.request();
+      await sleep(this.pause);
+      if (this.isRunning) {
+        this.continousRequest();
+      }
+    }, 0);
+  }
   start() {
-    if (this.running) {
+    if (this.isRunning) {
       return;
     }
-    this.running = true;
+    this.isRunning = true;
     for (let i = 0; i < this.workers; i++) {
-      const delay = Math.round((i * this.wait) / this.workers);
-      setTimeout(() => {
-        this.timers.push(
-          setInterval(() => {
-            this.request();
-          }, this.wait)
-        );
-        this.request();
-      }, delay);
+      this.continousRequest();
     }
   }
   stop() {
-    if (!this.running) {
-      return;
-    }
-    this.running = false;
-    this.timers.forEach((timer) => {
-      clearTimeout(timer);
-    });
-    this.timers = [];
+    this.isRunning = false;
+  }
+  getWorkerCount() {
+    return this.workers;
   }
 }
 
