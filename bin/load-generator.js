@@ -1,189 +1,106 @@
 #!/usr/bin/env node
 const fs = require("fs");
 const path = require("path");
-const { performance } = require("perf_hooks");
+const commandLineArgs = require("command-line-args");
 
-const LoadTest = require("../src/models/LoadTest");
-const config = JSON.parse(
-  fs.readFileSync(path.join(process.cwd(), "load-generator.json"), "utf8")
-);
+const runDashboard = require("../src/runDashboard");
+const runPorcelain = require("../src/runPorcelain");
 
-const blessed = require("blessed");
-const contrib = require("blessed-contrib");
-const screen = blessed.screen();
+const validKeyValue = /^[a-z][a-z0-9]*=[^,\s=]+(,[^,\s=]+)*$/i;
+const parseKeyValues = (keyValues) =>
+  keyValues.reduce((acc, keyValue) => {
+    keyValue = keyValue.trim();
+    if (!keyValue.match(validKeyValue)) {
+      return acc;
+    }
+    const [name, values] = keyValue.split("=");
+    return {
+      ...acc,
+      [name]: values.split(","),
+    };
+  }, {});
 
-screen.key(["escape"], function (ch, key) {
-  clearInterval(lineInterval);
-  lt.stop();
-});
-screen.key(["C-c"], function (ch, key) {
-  return process.exit(0);
-});
-
-const { grid: Grid } = contrib;
-
-// create layout and widgets
-const grid = new Grid({
-  rows: 3,
-  cols: 3,
-  screen,
-});
-
-const throughputGraph = grid.set(0, 0, 1, 3, contrib.line, {
-  label: " Throughput [request/s] ",
-  showLegend: false,
-  style: {
-    text: "white",
-    baseline: [150, 150, 150],
-  },
-});
-
-const requestsGraph = grid.set(1, 0, 1, 3, contrib.line, {
-  label: " Response time [ms] ",
-  showLegend: false,
-  style: {
-    text: "white",
-    baseline: [150, 150, 150],
-  },
-});
-
-const table = grid.set(2, 0, 1, 1, contrib.table, {
-  keys: false,
-  interactive: false,
-  fg: "white",
-  label: " Stats ",
-  columnSpacing: 0,
-  headers: false,
-  columnWidth: [30, 10],
-});
-
-const out = grid.set(2, 1, 1, 2, contrib.log, { label: "Log" });
-
-const tableData = {
-  workers: {
-    title: "Workers",
-    value: 0,
-  },
-  total: {
-    title: "Requetst sent",
-    value: 0,
-  },
-  success: {
-    title: "Succeeded responses",
-    value: 0,
-  },
-  failed: {
-    title: "Failed responses",
-    value: 0,
-  },
-  throughput: {
-    title: "Throughput [request/s]",
-    value: 0,
-  },
-  average: {
-    title: "Response time [ms]",
-    value: 0,
-  },
+// defaults
+let porcelain = false;
+const options = {
+  urls: [],
+  values: {},
+  headers: {},
+  pause: 0,
+  workers: 2,
+  timeout: 3000,
 };
 
-const round = (num, decimals = 2) => {
-  const factor = Math.pow(10, decimals);
-  return Math.round(num * factor) / factor;
-};
-const compileTableData = () =>
-  Object.keys(tableData).reduce((acc, key) => {
-    acc.push([tableData[key].title, tableData[key].value]);
-    return acc;
-  }, []);
-table.setData({ headers: [], data: compileTableData() });
-
-// set line charts data
-let successDurations = [];
-const updateInterval = 100;
-const intervalsOnScreen = 250;
-const rollingAverageCount = 10;
-const start = performance.now();
-let responseTimestamps = [];
-const throughputInterval = 5000;
-const generateY = (amount) =>
-  " "
-    .repeat(amount)
-    .split("")
-    .map((str) => 0);
-const generateX = (amount) =>
-  generateY(amount).map((str, i) => ((i * updateInterval) / 1000).toString());
-const average = (arr, rolling = 0) => {
-  if (rolling) {
-    arr = arr.slice(-1 * rolling);
+// try to read json
+try {
+  const jsonOptions = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), "load-generator.json"), "utf8")
+  );
+  if (Array.isArray(jsonOptions.urls)) {
+    options.urls.push(...jsonOptions.urls);
   }
-  return arr.reduce((acc, num) => acc + num, 0) / arr.length || 1;
+  options.values = {
+    ...options.values,
+    ...(jsonOptions.values || {}),
+  };
+  options.headers = {
+    ...options.headers,
+    ...(jsonOptions.headers || {}),
+  };
+  if (typeof jsonOptions.pause === "number") {
+    options.pause = jsonOptions.pause;
+  }
+  if (typeof jsonOptions.workers === "number") {
+    options.workers = jsonOptions.workers;
+  }
+  if (typeof jsonOptions.timeout === "number") {
+    options.timeout = jsonOptions.timeout;
+  }
+  if (typeof jsonOptions.porcelain === "boolean") {
+    porcelain = jsonOptions.porcelain;
+  }
+} catch (e) {}
+
+// read command line args
+const optionDefinitions = [
+  {
+    name: "url",
+    type: String,
+    multiple: true,
+    defaultOption: true,
+  },
+  { name: "values", type: String, multiple: true },
+  { name: "header", type: String, multiple: true },
+  { name: "porcelain", alias: "p", type: Boolean },
+  { name: "pause", type: Number },
+  { name: "workers", alias: "w", type: Number },
+  { name: "timeout", type: Number },
+];
+const argsOptions = commandLineArgs(optionDefinitions);
+if (Array.isArray(argsOptions.url)) {
+  options.urls.push(...argsOptions.url);
+}
+options.values = {
+  ...options.values,
+  ...parseKeyValues(argsOptions.values),
 };
-
-const lineSuccess = {
-  style: { line: "green" },
-  y: generateY(intervalsOnScreen),
-  x: generateX(intervalsOnScreen),
+options.headers = {
+  ...options.headers,
+  ...parseKeyValues(argsOptions.header),
 };
-requestsGraph.setData([lineSuccess]);
+if (typeof argsOptions.pause === "number") {
+  options.pause = argsOptions.pause;
+}
+if (typeof argsOptions.workers === "number") {
+  options.workers = argsOptions.workers;
+}
+if (typeof argsOptions.timeout === "number") {
+  options.timeout = argsOptions.timeout;
+}
+if (typeof argsOptions.porcelain === "boolean") {
+  porcelain = argsOptions.porcelain;
+}
 
-const lineTrhoughput = {
-  style: { line: "green" },
-  y: generateY(intervalsOnScreen),
-  x: generateX(intervalsOnScreen),
-};
-throughputGraph.setData([lineTrhoughput]);
-
-const lineInterval = setInterval(function () {
-  const success = successDurations.slice(-1 * rollingAverageCount);
-  lineSuccess.y.unshift(average(success, rollingAverageCount));
-  lineSuccess.y = lineSuccess.y.slice(0, intervalsOnScreen - 1);
-  requestsGraph.setData([lineSuccess]);
-  requestsGraph.calcSize();
-
-  const now = performance.now();
-  const actualInterval = Math.min(throughputInterval, now - start);
-  responseTimestamps = responseTimestamps.filter(
-    (timestamp) => timestamp + throughputInterval > now
-  );
-  tableData.throughput.value = round(
-    responseTimestamps.length / (actualInterval / 1000),
-    2
-  );
-  lineTrhoughput.y.unshift(tableData.throughput.value);
-  lineTrhoughput.y = lineTrhoughput.y.slice(0, intervalsOnScreen - 1);
-  throughputGraph.setData([lineTrhoughput]);
-  throughputGraph.calcSize();
-
-  table.setData({ headers: [" ", " "], data: compileTableData() });
-
-  screen.render();
-}, updateInterval);
-
-const loadTest = new LoadTest({
-  ...config,
-  onSuccess: (response, duration, text) => {
-    successDurations.push(duration);
-    tableData.success.value++;
-    tableData.average.value = round(
-      average(successDurations, rollingAverageCount),
-      2
-    );
-    out.log(" OK: " + response.url);
-  },
-  onFail: (response, duration, text) => {
-    tableData.failed.value++;
-    out.log(" Failed: " + response.url + " " + JSON.stringify(response));
-  },
-  onRequest({ url }) {
-    tableData.total.value++;
-  },
-  onResponse(response, duration) {
-    const now = performance.now();
-    responseTimestamps.push(now);
-  },
-});
-
-loadTest.start();
-screen.render();
-
-tableData.workers.value = loadTest.getWorkerCount();
+// run load generator
+const run = porcelain ? runPorcelain : runDashboard;
+run(options);

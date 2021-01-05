@@ -25,27 +25,31 @@ const getAgent = (url) =>
         keepAlive: true,
         rejectUnauthorized: false,
       });
+
+const noop = () => true;
 class LoadTest {
   constructor({
-    pause = 0,
-    workers = 1,
-    urls = ["/"],
-    values = [],
-    fetchOptions = {},
-    onError = () => true,
-    onFail = () => true,
-    onRequest = () => true,
-    onResponse = () => true,
-    onSuccess = () => true,
-    verification = () => true,
+    urls,
+    values,
+    headers,
+    pause,
+    workers,
+    timeout,
+    onError = noop,
+    onFail = noop,
+    onRequest = noop,
+    onResponse = noop,
+    onSuccess = noop,
+    verification = noop,
   }) {
     this.pause = pause;
     this.workers = workers;
     this.urls = urls;
     this.values = values;
     this.fetchOptions = {
+      headers,
+      timeout,
       agent: getAgent,
-      ...fetchOptions,
     };
     this.onError = onError;
     this.onFail = onFail;
@@ -61,7 +65,7 @@ class LoadTest {
     this.onRequest({ url });
     try {
       const response = await fetch(url, this.fetchOptions);
-      const duration = performance.now() - startTime;
+      const duration = Math.round(performance.now() - startTime);
       this.onResponse(response, duration);
       if (response.status >= 200 && response.status < 300) {
         const text = await response.text();
