@@ -11,7 +11,7 @@
 ```json
 {
   "wait": 500,
-  "instances": 2,
+  "workers": 2,
   "urls": [
     "http://www.example.com/{lang}/",
     "http://www.example.com/{lang}/?sort={sort}&page={page}"

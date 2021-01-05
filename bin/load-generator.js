@@ -24,14 +24,8 @@ const { grid: Grid } = contrib;
 // create layout and widgets
 const grid = new Grid({
   rows: 2,
-  cols: 1,
+  cols: 3,
   screen,
-});
-
-const requestsGraph = grid.set(1, 0, 1, 1, contrib.line, {
-  showNthLabel: 5,
-  label: " Response time ",
-  showLegend: false,
 });
 
 const table = grid.set(0, 0, 1, 1, contrib.table, {
@@ -43,6 +37,14 @@ const table = grid.set(0, 0, 1, 1, contrib.table, {
   headers: false,
   columnWidth: [30, 10],
 });
+
+const requestsGraph = grid.set(0, 1, 1, 2, contrib.line, {
+  showNthLabel: 5,
+  label: " Response time ",
+  showLegend: false,
+});
+
+const out = grid.set(1, 0, 1, 3, contrib.log, { label: "Log" });
 
 const tableData = {
   sent: {
@@ -61,9 +63,9 @@ const tableData = {
     title: "Average response time [ms]",
     value: 0,
   },
-  instances: {
-    title: "Requests per second",
-    value: (1000 / config.wait) * config.instances,
+  workers: {
+    title: "Throughput [requests/s]",
+    value: (1000 / config.wait) * config.workers,
   },
 };
 
@@ -118,15 +120,17 @@ const lineInterval = setInterval(function () {
 
 const lt = new LoadTest({
   ...config,
-  onSuccess: (response, delta, text) => {
-    successDurations.push(delta);
+  onSuccess: (response, duration, text) => {
+    successDurations.push(duration);
     tableData.success.value++;
     tableData.average.value = round(average(successDurations));
+    out.log("OK: " + response.url);
   },
-  onFail: (response, delta, text) => {
+  onFail: (response, duration, text) => {
     tableData.failed.value++;
+    out.log("Failed: " + response.url + " " + JSON.stringify(response));
   },
-  onRequest() {
+  onRequest({ url }) {
     tableData.sent.value++;
   },
 });

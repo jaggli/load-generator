@@ -1,10 +1,10 @@
 const fetch = require("node-fetch");
-const now = require("performance-now");
+const { performance } = require("perf_hooks");
 
 class LoadTest {
   constructor({
     wait = 500,
-    instances = 1,
+    workers = 1,
     urls = ["/"],
     values = [],
     fetchOptions = {},
@@ -14,7 +14,7 @@ class LoadTest {
     verification = () => true,
   }) {
     this.wait = wait;
-    this.instances = instances;
+    this.workers = workers;
     this.urls = urls;
     this.values = values;
     this.fetchOptions = fetchOptions;
@@ -47,29 +47,31 @@ class LoadTest {
     };
   }
   async request() {
-    const time = now();
+    const time = performance.now();
     const { url, lang } = this.getUrl();
     this.onRequest({ url });
     try {
       const response = await fetch(url, this.fetchOptions);
-      const delta = now() - time;
+      const duration = performance.now() - time;
       if (response.status >= 200 && response.status < 300) {
-        const text = await response.textConverted();
+        const text = await response.text();
         if (this.verification(text, lang)) {
-          this.onSuccess(response, delta, text);
+          this.onSuccess(response, duration, text);
           return;
         }
       }
-      this.onFail(response, delta);
-    } catch (e) {}
+      this.onFail(response, duration);
+    } catch (e) {
+      console.log(e);
+    }
   }
   start() {
     if (this.running) {
       return;
     }
     this.running = true;
-    for (let i = 0; i < this.instances; i++) {
-      const delay = Math.round((i * this.wait) / this.instances);
+    for (let i = 0; i < this.workers; i++) {
+      const delay = Math.round((i * this.wait) / this.workers);
       setTimeout(() => {
         this.timers.push(
           setInterval(() => {

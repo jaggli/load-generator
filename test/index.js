@@ -9,8 +9,8 @@ const config = JSON.parse(
 
 var lt = new LoadTest({
   ...config,
-  onSuccess: ({ url }, delta, text) => {},
-  onFail: ({ url }, delta, text) => {},
+  onSuccess: ({ url }, duration, text) => {},
+  onFail: ({ url }, duration, text) => {},
   onRequest({ url }) {
     console.log(url);
   },
