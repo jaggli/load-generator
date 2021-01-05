@@ -1,6 +1,17 @@
 const fetch = require("node-fetch");
 const { performance } = require("perf_hooks");
+const http = require("http");
+const https = require("https");
 
+const getAgent = (url) =>
+  url.protocol === "http:"
+    ? new http.Agent({
+        keepAlive: true,
+      })
+    : new https.Agent({
+        keepAlive: true,
+        rejectUnauthorized: false,
+      });
 class LoadTest {
   constructor({
     wait = 500,
@@ -17,7 +28,10 @@ class LoadTest {
     this.workers = workers;
     this.urls = urls;
     this.values = values;
-    this.fetchOptions = fetchOptions;
+    this.fetchOptions = {
+      agent: getAgent,
+      ...fetchOptions,
+    };
     this.onSuccess = onSuccess;
     this.onFail = onFail;
     this.onRequest = onRequest;
