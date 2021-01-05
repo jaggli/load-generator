@@ -7,7 +7,7 @@ const runDashboard = require("../src/runDashboard");
 const runPorcelain = require("../src/runPorcelain");
 
 const validKeyValue = /^[a-z][a-z0-9]*=[^,\s=]+(,[^,\s=]+)*$/i;
-const parseKeyValues = (keyValues) =>
+const parseKeyValues = (keyValues = []) =>
   keyValues.reduce((acc, keyValue) => {
     keyValue = keyValue.trim();
     if (!keyValue.match(validKeyValue)) {
