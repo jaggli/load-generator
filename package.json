@@ -24,7 +24,7 @@
   "dependencies": {
     "blessed": "^0.1.81",
     "blessed-contrib": "^4.8.20",
-    "node-fetch": "^1.7.3",
+    "node-fetch": "^2.6.1",
     "performance-now": "^2.1.0",
     "prettier": "^2.2.1"
   }
