@@ -3,8 +3,9 @@
 ## Usage
 
 <details><summary>
-  
-**Step 1** Create a configuration file, and save it as `load-generator.json`
+
+**1.)** Create a configuration file, and save it as `load-generator.json`
+
 </summary>
 
 ```json
@@ -19,6 +20,12 @@
     "lang": ["de", "fr", "it", "en"],
     "sort": ["1", "2", "3", "4", "5", "7", "8", "10"],
     "page": ["1", "2", "3", "4", "5", "7", "8", "10"]
+  },
+  "fetchOptions": {
+    "method": "POST",
+    "headers": {
+      "cookie": "accessToken=1234abc; userId=1234"
+    }
   }
 }
 ```
@@ -27,11 +34,9 @@ One url is picked randomly and all placeholders are replaced by values from the 
 
 </details>
 
-**Step 2** Run `npx load-generator` in the same directory. The laod test imediately starts.
+**2.)** Run `npx load-generator` in the same directory to start generating load.
 
-If you are using a old npm version prior 5.2.0, you can install the package globally
-
-**Step 3** Hit ESC to stop the load test
+**3.)** Hit ESC to stop the load
 
 ## Screenshot
 

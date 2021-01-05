@@ -7,6 +7,7 @@ class LoadTest {
     instances = 1,
     urls = ["/"],
     values = [],
+    fetchOptions = {},
     onSuccess = () => true,
     onFail = () => true,
     onRequest = () => true,
@@ -16,6 +17,7 @@ class LoadTest {
     this.instances = instances;
     this.urls = urls;
     this.values = values;
+    this.fetchOptions = fetchOptions;
     this.onSuccess = onSuccess;
     this.onFail = onFail;
     this.onRequest = onRequest;
@@ -49,7 +51,7 @@ class LoadTest {
     const { url, lang } = this.getUrl();
     this.onRequest({ url });
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, this.fetchOptions);
       const delta = now() - time;
       if (response.status >= 200 && response.status < 300) {
         const text = await response.textConverted();
