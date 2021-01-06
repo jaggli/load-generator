@@ -2,6 +2,8 @@
 
 Generates http(s) load.
 
+[![Published on npm](https://img.shields.io/npm/v/load-generator)](https://www.npmjs.com/package/load-generator)
+
 ![screenshot](screenshot.png)
 
 ## Simple usage
