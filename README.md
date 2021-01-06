@@ -28,19 +28,20 @@ npx load-generator --values lang=de,en,it,fr http://www.example.com/{lang}/ http
 #### **`--url`**
 - Type `string[]`
 
-URLs containing optional placeholders. A placeholder must be in curly braces and will be filled with the corresponding values in the named values option.
+URLs containing optional placeholders. A placeholder must be in curly braces and will be filled with the corresponding values in the named values option.<br>
 **Default option** This is the default option, the option `--url` may be ommitted for simplicity.
 
 #### **`--values`**
 - Type `string[]`
 
-Named value lists for placeholders in the URLs. Must follow the following name and comma-separated pattern: `--values "name=value1,value2,value3"`
+Named value lists for placeholders in the URLs. Must follow the following name and comma-separated pattern.<br>
+Example, add values for `lang`: `--values "lang=en,de,it,fr"`
 
 #### **`--header`**
 - Type `string[]`
 
-HTTP header added to every request.
-Example to add cookies: `--header "Cookie=name1:value1; name2:value2"`
+HTTP header added to every request.<br>
+Example to add cookies: `--header "Cookie=name1:value1; name2:value2"`<br>
 Example JSON Content-Type: `--header "Content-Type=application/json"`
 
 #### **`-p`**, **`--porcelain`**
