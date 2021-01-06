@@ -50,13 +50,16 @@ npx load-generator --values lang=de,en,it,fr http://www.example.com/{lang}/ http
 ## Usage with config file
 **1.)** Create a configuration file, and save it as `load-generator.json`
 
+In this example, each of the 8 worker picks one URL at the time, fills in placeholders randomly within it's list of values and calls it, one at the time and pauses 100ms in between calls.
+
 ```json
 {
-  "pause": 500,
-  "workers": 2,
+  "pause": 100,
+  "workers": 8,
+  "timeout": 1000,
   "urls": [
     "http://www.example.com/{lang}/",
-    "http://www.example.com/{lang}/?sort={sort}&page={page}"
+    "http://www.example.com/{lang}/?sort={sort}&page={page}&cachebust={__random__}"
   ],
   "values": {
     "lang": ["de", "fr", "it", "en"],
@@ -68,8 +71,6 @@ npx load-generator --values lang=de,en,it,fr http://www.example.com/{lang}/ http
   }
 }
 ```
-
-One URL is picked randomly and all placeholders are replaced by random values from the value object.
 
 **2.)** Run `npx load-generator` in the same directory.
 
