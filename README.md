@@ -25,44 +25,44 @@ npx load-generator --values lang=de,en,it,fr http://www.example.com/{lang}/ http
 
 ## CLI options
 
-### **`--url`**
+#### **`--url`**
 - Type `string[]`
 
 URLs containing optional placeholders. A placeholder must be in curly braces and will be filled with the corresponding values in the named values option.
 **Default option** This is the default option, the option `--url` may be ommitted for simplicity.
 
-### **`--values`**
+#### **`--values`**
 - Type `string[]`
 
 Named value lists for placeholders in the URLs. Must follow the following name and comma-separated pattern: `--values "name=value1,value2,value3"`
 
-### **`--header`**
+#### **`--header`**
 - Type `string[]`
 
 HTTP header added to every request.
 Example to add cookies: `--header "Cookie=name1:value1; name2:value2"`
 Example JSON Content-Type: `--header "Content-Type=application/json"`
 
-### **`-p`**, **`--porcelain`**
+#### **`-p`**, **`--porcelain`**
 - Type `boolean`
 - Default `false`
 
 Output in machine friendly format, no UI.
-### **`--pause`**
+#### **`--pause`**
 - Type `int`
 - Default `0`
 
 Pause between each request per worker in millisecons.
 
-### **`--timeout`**
+#### **`--timeout`**
 - Type `int`
 - Default `3000`
 
 Request timeout in milliseconds, set to 0 to use system default.
-### **`-h`**, **`--help`**
+#### **`-h`**, **`--help`**
 
 Displays help text.
-### **`-v`**, **`--version`**
+#### **`-v`**, **`--version`**
 
 Displays version.
 
