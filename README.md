@@ -8,9 +8,19 @@ Generates http(s) load.
 
 ## Simple usage
 
-Continously call an URL
+Continously calls the URL, with 2 workers.
 ```bash
 npx load-generator http://www.example.com/
+```
+
+With 4 workers and with cache buster, `{__random__}` is replaced by a current timestamp.
+```bash
+npx load-generator --workers 4 http://www.example.com/?random={__random__}
+```
+
+Multiple URLs with randomized language value.
+```bash
+npx load-generator --values lang=de,en,it,fr http://www.example.com/{lang}/ http://www.example.com/{lang}/category/2/?random={__random__}
 ```
 
 ## CLI options
