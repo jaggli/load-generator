@@ -1,6 +1,8 @@
 # load-generator
 
-A simple http(s) load generator
+Generates http(s) load.
+
+![screenshot](screenshot.png)
 
 ## Simple usage
 
@@ -60,7 +62,3 @@ One URL is picked randomly and all placeholders are replaced by random values fr
 **2.)** Run `npx load-generator` in the same directory.
 
 Hint: Config file and CLI options can be combined, where CLI options always have higher priority over eqivalent config file options.
-
-## Screenshot
-
-![screenshot](screenshot.png)

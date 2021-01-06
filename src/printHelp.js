@@ -5,7 +5,7 @@ const printHelp = (optionList) => {
     commandLineUsage([
       {
         header: "load-generator",
-        content: "A simple http(s) load generator",
+        content: "Generates http(s) load.",
       },
       {
         header: "Synopsis",
