@@ -47,7 +47,7 @@ const optionDefinitions = [
     multiple: true,
     defaultOption: true,
     description:
-      "URLs containing optional placeholders. A placeholder must be in curly brackets and will be filled with the corresponding values in the named values option. This is the default option so the name --url may be ommited for readability, also works with multiple URLs.\n",
+      "URLs containing optional placeholders. A placeholder must be in curly braces and will be filled with the corresponding values in the named values option. This is the default option so the name --url may be ommited for readability, also works with multiple URLs.\n",
   },
   {
     name: "values",
@@ -67,7 +67,7 @@ const optionDefinitions = [
     name: "porcelain",
     alias: "p",
     type: Boolean,
-    description: "Output in machine parseable format.\n",
+    description: "Output in machine friendly format, no UI.\n",
   },
   {
     name: "pause",
@@ -85,7 +85,7 @@ const optionDefinitions = [
   {
     name: "timeout",
     type: Number,
-    description: `Request timeout in milliseconds, set 0 to use system default. Default: {bold ${options.timeout}}\n`,
+    description: `Request timeout in milliseconds, set to 0 to use system default. Default: {bold ${options.timeout}}\n`,
     typeLabel: "{underline ms}",
   },
   {

@@ -24,28 +24,17 @@ npx load-generator --values lang=de,en,it,fr http://www.example.com/{lang}/ http
 ```
 
 ## CLI options
-```
---url string[]        URLs containing optional placeholders. A placeholder must be in curly
-                      brackets and will be filled with the corresponding values in the named values
-                      option. This is the default option so the name --url may be ommited for
-                      readability, also works with multiple URLs.
 
---values string[]     Named value lists for placeholders in the URLs. Must follow the following
-                      name and comma-separated pattern: name=value1,value2,value3
-
---header string[]     HTTP header added to every request. Example to add cookies:
-                      --header "name1=value1; name2:value2"
-
--p, --porcelain       Output in machine parseable format.
-
---pause ms            Pause between each request per worker in millisecons. Default: 0
-
--w, --workers amount  Amount of parallell requesting workers. Default: 2
-
---timeout ms          Request timeout in milliseconds, set 0 to use system default. Default: 3000
-
--h, --help            Display help text.
-```
+Option | Type | Default | Description
+:---|:---|:---|:----
+**`--url`** | `string[]` | - | URLs containing optional placeholders. A placeholder must be in curly braces and will be filled with the corresponding values in the named values option. **Default option** This is the default option, the option `--url` may be ommitted for simplicity.
+**`--values`** | `string[]` | - | Named value lists for placeholders in the URLs. Must follow the following name and comma-separated pattern: `--values "name=value1,value2,value3"`
+**`--header`** | `string[]` | - | HTTP header added to every request. Example to add cookies: `--header "name1=value1; name2:value2"`
+**`-p`**, **`--porcelain`** | `boolean` | `false` | Output in machine friendly format, no UI.
+**`--pause`** | `int` | `0` | Pause between each request per worker in millisecons.
+**`--timeout`** | `int` | `3000` | Request timeout in milliseconds, set to 0 to use system default.
+**`-h`**, **`--help`** | - | - | Displays help text.
+**`-v`**, **`--version`** | - | - | Displays version.
 
 ## Usage with config file
 **1.)** Create a configuration file, and save it as `load-generator.json`
