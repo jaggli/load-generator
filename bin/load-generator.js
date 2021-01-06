@@ -134,7 +134,6 @@ try {
 } catch (e) {}
 
 // process command line args
-console.log(argsOptions);
 if (Array.isArray(argsOptions.url)) {
   options.urls.push(...argsOptions.url);
 }
@@ -157,6 +156,11 @@ if (typeof argsOptions.timeout === "number") {
 }
 if (typeof argsOptions.porcelain === "boolean") {
   porcelain = argsOptions.porcelain;
+}
+
+if (!options.urls.length) {
+  console.error("Error: At least one URL is rquired, see --help.");
+  process.exit(1);
 }
 
 // run load generator
