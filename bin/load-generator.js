@@ -94,12 +94,25 @@ const optionDefinitions = [
     type: Boolean,
     description: "Display this help text.\n",
   },
+  {
+    name: "version",
+    alias: "v",
+    type: Boolean,
+    description: "Display package version.\n",
+  },
 ];
 const argsOptions = commandLineArgs(optionDefinitions);
 
 // print help and exit, if flag set
 if (argsOptions.help) {
   printHelp(optionDefinitions);
+  process.exit();
+}
+
+// print version and exit, if flag set
+if (argsOptions.version) {
+  const package = require("../package.json");
+  console.log(`v${package.version}`);
   process.exit();
 }
 
