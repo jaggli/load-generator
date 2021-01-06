@@ -51,19 +51,19 @@ module.exports = (config) => {
       value: 0,
     },
     total: {
-      title: "Requetst sent",
+      title: "Sent requests",
       value: 0,
     },
     success: {
-      title: "Succeeded responses",
+      title: "Succeeded requests",
       value: 0,
     },
     failed: {
-      title: "Failed responses",
+      title: "Failed requests",
       value: 0,
     },
     throughput: {
-      title: "Throughput [request/s]",
+      title: "Throughput [sequests/s]",
       value: 0,
     },
     average: {
