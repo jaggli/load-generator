@@ -13,7 +13,7 @@ Continously calls the URL, with 2 workers.
 npx load-generator http://www.example.com/
 ```
 
-With 4 workers and with cache buster, `{__random__}` is replaced by a current timestamp.
+With 4 workers and with cache buster, `{__random__}` is replaced by a random number.
 ```bash
 npx load-generator --workers 4 http://www.example.com/?random={__random__}
 ```

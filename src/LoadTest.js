@@ -10,6 +10,11 @@ const getRandomValue = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 const getUrl = (urls, values) => {
   let url = getRandomValue(urls);
+
+  // replace random placeholder
+  url = url.replace("{__random__}", Math.random());
+
+  // replace other placeholders
   Object.keys(values).forEach((key) => {
     url = url.replace(`{${key}}`, getRandomValue(values[key]));
   });
