@@ -6,15 +6,6 @@ const contrib = require("blessed-contrib");
 
 module.exports = (config) => {
   const screen = blessed.screen();
-
-  screen.key(["escape"], function (ch, key) {
-    clearInterval(lineInterval);
-    lt.stop();
-  });
-  screen.key(["C-c"], function (ch, key) {
-    return process.exit(0);
-  });
-
   const { grid: Grid } = contrib;
 
   // create layout and widgets
@@ -176,6 +167,14 @@ module.exports = (config) => {
       const now = performance.now();
       responseTimestamps.push(now);
     },
+  });
+
+  screen.key(["escape"], function (ch, key) {
+    clearInterval(lineInterval);
+    loadTest.stop();
+  });
+  screen.key(["C-c"], function (ch, key) {
+    return process.exit(0);
   });
 
   loadTest.start();
