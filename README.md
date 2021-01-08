@@ -60,6 +60,13 @@ Pause between each request per worker in millisecons.
 - Default `3000`
 
 Request timeout in milliseconds, set to 0 to use system default.
+
+#### **`-w`**, **--workers**
+- Type `int`
+- Default `2`
+
+Amount of parallell requesting workers.
+
 #### **`-h`**, **`--help`**
 
 Displays help text.
