@@ -62,7 +62,7 @@ class LoadTest {
     this.onResponse = onResponse;
     this.onSuccess = onSuccess;
     this.verification = verification;
-    this.isRunning = false;
+    this.running = false;
   }
   async request() {
     const startTime = performance.now();
@@ -89,25 +89,28 @@ class LoadTest {
     setTimeout(async () => {
       await this.request();
       await sleep(this.pause);
-      if (this.isRunning) {
+      if (this.running) {
         this.continousRequest();
       }
     }, 0);
   }
   start() {
-    if (this.isRunning) {
+    if (this.running) {
       return;
     }
-    this.isRunning = true;
+    this.running = true;
     for (let i = 0; i < this.workers; i++) {
       this.continousRequest();
     }
   }
   stop() {
-    this.isRunning = false;
+    this.running = false;
   }
   getWorkerCount() {
     return this.workers;
+  }
+  isRunning() {
+    return this.running;
   }
 }
 

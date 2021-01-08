@@ -37,7 +37,7 @@ module.exports = (config) => {
     keys: false,
     interactive: false,
     fg: "white",
-    label: " Stats ",
+    label: " Info ",
     columnSpacing: 0,
     headers: false,
     columnWidth: [30, 10],
@@ -72,6 +72,16 @@ module.exports = (config) => {
     },
   };
 
+  const runningStates = ["paused", "/", "-", "\\", "|"];
+  let runningState = 0;
+  const getRunningState = (running) => {
+    if (!running) {
+      runningState = 0;
+    } else {
+      runningState = Math.max(1, (runningState + 1) % runningStates.length);
+    }
+    return runningStates[runningState];
+  };
   const round = (num, decimals = 2) => {
     const factor = Math.pow(10, decimals);
     return Math.round(num * factor) / factor;
@@ -81,7 +91,19 @@ module.exports = (config) => {
       acc.push([tableData[key].title, tableData[key].value]);
       return acc;
     }, []);
-  table.setData({ headers: [], data: compileTableData() });
+  const setTableData = (running) => {
+    const data = compileTableData();
+    data.push(
+      [""],
+      ["Keys"],
+      ["Pause / unpause", "[space]"],
+      ["Quit", "[esc]"]
+    );
+    table.setData({
+      headers: [" Running / Paused", " " + getRunningState(running)],
+      data,
+    });
+  };
 
   // set line charts data
   let successDurations = [];
@@ -119,32 +141,6 @@ module.exports = (config) => {
   };
   throughputGraph.setData([lineTrhoughput]);
 
-  const lineInterval = setInterval(function () {
-    const success = successDurations.slice(-1 * rollingAverageCount);
-    lineSuccess.y.unshift(average(success, rollingAverageCount));
-    lineSuccess.y = lineSuccess.y.slice(0, intervalsOnScreen - 1);
-    requestsGraph.setData([lineSuccess]);
-    requestsGraph.calcSize();
-
-    const now = performance.now();
-    const actualInterval = Math.min(throughputInterval, now - start);
-    responseTimestamps = responseTimestamps.filter(
-      (timestamp) => timestamp + throughputInterval > now
-    );
-    tableData.throughput.value = round(
-      responseTimestamps.length / (actualInterval / 1000),
-      2
-    );
-    lineTrhoughput.y.unshift(tableData.throughput.value);
-    lineTrhoughput.y = lineTrhoughput.y.slice(0, intervalsOnScreen - 1);
-    throughputGraph.setData([lineTrhoughput]);
-    throughputGraph.calcSize();
-
-    table.setData({ headers: [" ", " "], data: compileTableData() });
-
-    screen.render();
-  }, updateInterval);
-
   const loadTest = new LoadTest({
     ...config,
     onSuccess: (response, duration, text) => {
@@ -169,16 +165,54 @@ module.exports = (config) => {
     },
   });
 
-  screen.key(["escape"], function (ch, key) {
-    clearInterval(lineInterval);
-    loadTest.stop();
+  let lineInterval;
+  const toggle = () => {
+    if (loadTest.isRunning()) {
+      clearInterval(lineInterval);
+      loadTest.stop();
+      setTableData(false);
+      screen.render();
+      return;
+    }
+    lineInterval = setInterval(function () {
+      const success = successDurations.slice(-1 * rollingAverageCount);
+      lineSuccess.y.unshift(average(success, rollingAverageCount));
+      lineSuccess.y = lineSuccess.y.slice(0, intervalsOnScreen - 1);
+      requestsGraph.setData([lineSuccess]);
+      requestsGraph.calcSize();
+
+      const now = performance.now();
+      const actualInterval = Math.min(throughputInterval, now - start);
+      responseTimestamps = responseTimestamps.filter(
+        (timestamp) => timestamp + throughputInterval > now
+      );
+      tableData.throughput.value = round(
+        responseTimestamps.length / (actualInterval / 1000),
+        2
+      );
+      lineTrhoughput.y.unshift(tableData.throughput.value);
+      lineTrhoughput.y = lineTrhoughput.y.slice(0, intervalsOnScreen - 1);
+      throughputGraph.setData([lineTrhoughput]);
+      throughputGraph.calcSize();
+
+      setTableData(loadTest.isRunning());
+
+      tableData.workers.value = loadTest.getWorkerCount();
+
+      screen.render();
+    }, updateInterval);
+    loadTest.start();
+    screen.render();
+  };
+
+  // start
+  toggle();
+
+  // attach keyboard handlers
+  screen.key(["space"], function (ch, key) {
+    toggle();
   });
-  screen.key(["C-c"], function (ch, key) {
+  screen.key(["C-c", "q", "escape"], function (ch, key) {
     return process.exit(0);
   });
-
-  loadTest.start();
-  screen.render();
-
-  tableData.workers.value = loadTest.getWorkerCount();
 };
