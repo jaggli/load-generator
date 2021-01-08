@@ -63,7 +63,7 @@ module.exports = (config) => {
       value: 0,
     },
     throughput: {
-      title: "Throughput [sequests/s]",
+      title: "Throughput [requests/s]",
       value: 0,
     },
     average: {
